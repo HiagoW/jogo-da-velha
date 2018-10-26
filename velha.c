@@ -18,67 +18,73 @@ int nvez=2, lin, col, resjogada,jogadas1[3][3],jogadas2[3][3],nivel,jogcomp;
 int vitoria[8][3][2]={{{0,0},{0,1},{0,2}},{{1,0},{1,1},{1,2}},{{2,0},{2,1},{2,2}},{{0,0},{1,0},{2,0}},{{0,1},{1,1},{2,1}},{{0,2},{1,2},{2,2}},{{0,0},{1,1},{2,2}},{{0,2},{1,1},{2,0}}};
 
 int main(){
-    system("cls");
-    printf("----------------------------JOGO DA VELHA!!------------------------\n");
-    inicializa_velha();
-    if(menu()==2){
-        strcpy(contra,"Jogador 2");
-    } else {
-        strcpy(contra,"Computador");
-        jogcomp=1;
-    }
-    escolha_simb(&jog1,&jog2);
-    vez=jog2;
-    printf("---------------------VALENDO!-------------------");
-    mostra_matriz();
-    if(nivel==3){
-        vez=jog1;
-    }
+    char opc;
     do{
-        if(vez==jog2){
-            vez=jog1;
-            nvez=1;
+        system("cls");
+        printf("----------------------------JOGO DA VELHA!!------------------------\n");
+        inicializa_velha();
+        if(menu()==2){
+            strcpy(contra,"Jogador 2");
         } else {
-            vez=jog2;
-            nvez=2;
+            strcpy(contra,"Computador");
+            jogcomp=1;
         }
-        if(!strcmp(contra,"Jogador 2")){
-            do{
-                printf("Jogador %d escolha a posicao para jogar, linha e coluna: ",nvez);
-                scanf("%d %d",&lin,&col);
-                lin--;
-                col--;
-                resjogada=jogada_usuario(lin,col,vez);
-            }while(resjogada!=0);
-            mostra_matriz();
-        } else {
-            if(nvez==1){
-                    do{
-                        printf("Jogador %d escolha a posicao para jogar, linha e coluna: ",nvez);
-                        scanf("%d %d",&lin,&col);
-                        lin--;
-                        col--;
-                        resjogada=jogada_usuario(lin,col,vez);
-                }while(resjogada!=0);
-            } else {
-                //computador joga
-                printf("PC jogando...\n");
-                jogada_computador(jog2,nivel);
-            }
+        escolha_simb(&jog1,&jog2);
+        vez=jog2;
+        printf("---------------------VALENDO!-------------------");
         mostra_matriz();
+        if(nivel==3){
+            vez=jog1;
         }
-    }while(verifica_ganhador(vez)==0);
-        if(verifica_ganhador(vez)==1 && !strcmp(contra,"Jogador 2")){
-            printf("Jogador %d ganhou!",nvez);
-        } else if(verifica_ganhador(vez)==1 && !strcmp(contra,"Computador")){
-            if(vez==jog1){
-                printf("Jogador %d ganhou!",nvez);
-            }else{
-                printf("Computador ganhou!");
+        do{
+            if(vez==jog2){
+                vez=jog1;
+                nvez=1;
+            } else {
+                vez=jog2;
+                nvez=2;
             }
-        }else {
-            printf("Velha!");
-        }
+            if(!strcmp(contra,"Jogador 2")){
+                do{
+                    printf("Jogador %d escolha a posicao para jogar, linha e coluna: ",nvez);
+                    scanf("%d %d",&lin,&col);
+                    lin--;
+                    col--;
+                    resjogada=jogada_usuario(lin,col,vez);
+                }while(resjogada!=0);
+                mostra_matriz();
+            } else {
+                if(nvez==1){
+                        do{
+                            printf("Jogador %d escolha a posicao para jogar, linha e coluna: ",nvez);
+                            scanf("%d %d",&lin,&col);
+                            lin--;
+                            col--;
+                            resjogada=jogada_usuario(lin,col,vez);
+                    }while(resjogada!=0);
+                } else {
+                    //computador joga
+                    printf("PC jogando...\n");
+                    jogada_computador(jog2,nivel);
+                }
+            mostra_matriz();
+            }
+        }while(verifica_ganhador(vez)==0);
+            if(verifica_ganhador(vez)==1 && !strcmp(contra,"Jogador 2")){
+                printf("Jogador %d ganhou!",nvez);
+            } else if(verifica_ganhador(vez)==1 && !strcmp(contra,"Computador")){
+                if(vez==jog1){
+                    printf("Jogador %d ganhou!",nvez);
+                }else{
+                    printf("Computador ganhou!");
+                }
+            }else {
+                printf("Velha!");
+            }
+            printf("\nDeseja continuar?[S/N]: ");
+            setbuf(stdin,NULL);
+            scanf("%c",&opc);
+    }while(tolower(opc)=='s');
     printf("\nPress ENTER key to Continue\n");  
     getchar();
     getchar(); 
@@ -267,21 +273,6 @@ void inicializa_velha(){
 
 int verifica_ganhador(char jog){
     int cont, c, d;
-    cont=3;
-    for(c=0;c<3;c++){
-        for(d=0;d<3;d++){
-            if(matriz[c][d]==' '){
-                cont=0;
-                break;
-            }
-        }
-        if(cont==0){
-            break;
-        }
-    }
-    if(cont==3){
-        return cont;
-    }
     for(c=0;c<8;c++){
         cont=1;
         //printf("--\n");
@@ -296,7 +287,14 @@ int verifica_ganhador(char jog){
             return cont;
         }
     }
-    return cont;
+    for(c=0;c<3;c++){
+        for(d=0;d<3;d++){
+            if(matriz[c][d]==' '){
+                return 0;
+            }
+        }
+    }
+    return 3;
 }
 
 //Grava em texto
