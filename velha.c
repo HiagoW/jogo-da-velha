@@ -12,13 +12,21 @@ void inicializa_velha();
 int verifica_ganhador(char jog);
 void mostra_matriz();
 
-char matriz[3][3], jog1, jog2, jog, vez, contra[20];
+typedef struct velha{
+    int partida;
+    char JogVelha[3][3];
+    char resultado;
+} Partida;
+Partida jogo;
+
+char  jog1, jog2, jog, vez, contra[20];
 int nvez=2, lin, col, resjogada,jogadas1[3][3],jogadas2[3][3],nivel,jogcomp;
 //Possiveis combinações de vitória
 int vitoria[8][3][2]={{{0,0},{0,1},{0,2}},{{1,0},{1,1},{1,2}},{{2,0},{2,1},{2,2}},{{0,0},{1,0},{2,0}},{{0,1},{1,1},{2,1}},{{0,2},{1,2},{2,2}},{{0,0},{1,1},{2,2}},{{0,2},{1,1},{2,0}}};
 
 int main(){
     char opc;
+    jogo.partida=0;
     do{
         system("cls");
         printf("----------------------------JOGO DA VELHA!!------------------------\n");
@@ -72,15 +80,20 @@ int main(){
         }while(verifica_ganhador(vez)==0);
             if(verifica_ganhador(vez)==1 && !strcmp(contra,"Jogador 2")){
                 printf("Jogador %d ganhou!",nvez);
+                jogo.resultado=vez;
             } else if(verifica_ganhador(vez)==1 && !strcmp(contra,"Computador")){
                 if(vez==jog1){
                     printf("Jogador %d ganhou!",nvez);
+                    jogo.resultado=vez;
                 }else{
                     printf("Computador ganhou!");
+                    jogo.resultado=vez;
                 }
             }else {
                 printf("Velha!");
+                jogo.resultado='v';
             }
+            jogo.partida++;
             printf("\nDeseja continuar?[S/N]: ");
             setbuf(stdin,NULL);
             scanf("%c",&opc);
@@ -94,10 +107,10 @@ int main(){
 int jogada_usuario(int lin, int col, char jog){
     if(lin<0 || lin>4 || col<0 || col>4){
         return 1;
-    } else if(matriz[lin][col]!=' '){
+    } else if(jogo.JogVelha[lin][col]!=' '){
         return 2;
     }
-    matriz[lin][col]=jog;
+    jogo.JogVelha[lin][col]=jog;
     return 0;
 }
 
@@ -112,45 +125,45 @@ void jogada_computador(char jog, int nivel){
         do{
             c=(rand()%3+1);
             d=(rand()%3+1);
-        }while(matriz[c][d]!=' ');
-        matriz[c][d]=jog;
+        }while(jogo.JogVelha[c][d]!=' ');
+        jogo.JogVelha[c][d]=jog;
     } else{
         if(jogcomp==1){
-            if(matriz[0][0]==' '){
-                matriz[0][0]=jog;
+            if(jogo.JogVelha[0][0]==' '){
+                jogo.JogVelha[0][0]=jog;
             }else{
-                matriz[2][0]=jog;
+                jogo.JogVelha[2][0]=jog;
             }
         } else if(jogcomp==2){
-            if(matriz[0][0]==jog){
-                if(matriz[0][2]==' '){
-                    matriz[0][2]=jog;
+            if(jogo.JogVelha[0][0]==jog){
+                if(jogo.JogVelha[0][2]==' '){
+                    jogo.JogVelha[0][2]=jog;
                 } else {
-                    matriz[2][0]=jog;
+                    jogo.JogVelha[2][0]=jog;
                 }
             } else {
-                if(matriz[0][0]==' '){
-                    matriz[0][0]=jog;
+                if(jogo.JogVelha[0][0]==' '){
+                    jogo.JogVelha[0][0]=jog;
                 } else {
-                    matriz[2][2]=jog;
+                    jogo.JogVelha[2][2]=jog;
                 }
             }
         } else if(jogcomp==3) {
-            if(matriz[0][0]==jog && matriz[0][2]==jog){
-                if(matriz[0][1]==' '){
-                    matriz[0][1]=jog;
-                } else if(matriz[1][1]!=' '){
-                    matriz[2][1]=jog;
-                } else if(matriz[2][1]!=' '){
-                    matriz[1][1]=jog;
-                }else if(matriz[2][0]!=' ' || matriz[2][2]!=' '){
-                    matriz[2][1]=jog;
+            if(jogo.JogVelha[0][0]==jog && jogo.JogVelha[0][2]==jog){
+                if(jogo.JogVelha[0][1]==' '){
+                    jogo.JogVelha[0][1]=jog;
+                } else if(jogo.JogVelha[1][1]!=' '){
+                    jogo.JogVelha[2][1]=jog;
+                } else if(jogo.JogVelha[2][1]!=' '){
+                    jogo.JogVelha[1][1]=jog;
+                }else if(jogo.JogVelha[2][0]!=' ' || jogo.JogVelha[2][2]!=' '){
+                    jogo.JogVelha[2][1]=jog;
                 } else{
                     int cont=0;
                     for(c=0;c<3;c++){
                         for(d=0;d<3;d++){
-                            if(matriz[c][d]==' '){
-                                matriz[c][d]=jog;
+                            if(jogo.JogVelha[c][d]==' '){
+                                jogo.JogVelha[c][d]=jog;
                                 cont=1;
                                 break;
                             }
@@ -160,21 +173,21 @@ void jogada_computador(char jog, int nivel){
                         }
                     }
                 }
-            } else if(matriz[0][0]==jog && matriz[2][0]==jog){
-                if(matriz[1][0]==' '){
-                    matriz[1][0]=jog;
-                } else if(matriz[1][1]!=' '){
-                    matriz[1][2]=jog;
-                } else if(matriz[1][2]!=' '){
-                    matriz[1][1]=jog;
-                }else if(matriz[0][2]!=' ' || matriz[2][2]!=' '){
-                    matriz[1][2]=jog;
+            } else if(jogo.JogVelha[0][0]==jog && jogo.JogVelha[2][0]==jog){
+                if(jogo.JogVelha[1][0]==' '){
+                    jogo.JogVelha[1][0]=jog;
+                } else if(jogo.JogVelha[1][1]!=' '){
+                    jogo.JogVelha[1][2]=jog;
+                } else if(jogo.JogVelha[1][2]!=' '){
+                    jogo.JogVelha[1][1]=jog;
+                }else if(jogo.JogVelha[0][2]!=' ' || jogo.JogVelha[2][2]!=' '){
+                    jogo.JogVelha[1][2]=jog;
                 }else {
                     int cont=0;
                     for(c=0;c<3;c++){
                         for(d=0;d<3;d++){
-                            if(matriz[c][d]==' '){
-                                matriz[c][d]=jog;
+                            if(jogo.JogVelha[c][d]==' '){
+                                jogo.JogVelha[c][d]=jog;
                                 cont=1;
                                 break;
                             }
@@ -184,21 +197,21 @@ void jogada_computador(char jog, int nivel){
                         }
                     }
                 }
-            } else if(matriz[2][0]==jog && matriz[2][2]==jog){
-                if(matriz[2][1]==' '){
-                    matriz[2][1]=jog;
-                }else if(matriz[1][1]!=' '){
-                    matriz[0][1]=jog;
-                }else if(matriz[0][1]!=' '){
-                    matriz[1][1]=jog;
-                }else if(matriz[0][0]!=' ' || matriz[0][2]!=' '){
-                    matriz[0][1]=jog;
+            } else if(jogo.JogVelha[2][0]==jog && jogo.JogVelha[2][2]==jog){
+                if(jogo.JogVelha[2][1]==' '){
+                    jogo.JogVelha[2][1]=jog;
+                }else if(jogo.JogVelha[1][1]!=' '){
+                    jogo.JogVelha[0][1]=jog;
+                }else if(jogo.JogVelha[0][1]!=' '){
+                    jogo.JogVelha[1][1]=jog;
+                }else if(jogo.JogVelha[0][0]!=' ' || jogo.JogVelha[0][2]!=' '){
+                    jogo.JogVelha[0][1]=jog;
                 }else{
                     int cont=0;
                     for(c=0;c<3;c++){
                         for(d=0;d<3;d++){
-                            if(matriz[c][d]==' '){
-                                matriz[c][d]=jog;
+                            if(jogo.JogVelha[c][d]==' '){
+                                jogo.JogVelha[c][d]=jog;
                                 cont=1;
                                 break;
                             }
@@ -213,8 +226,8 @@ void jogada_computador(char jog, int nivel){
                 int cont=0;
                     for(c=0;c<3;c++){
                         for(d=0;d<3;d++){
-                            if(matriz[c][d]==' '){
-                                matriz[c][d]=jog;
+                            if(jogo.JogVelha[c][d]==' '){
+                                jogo.JogVelha[c][d]=jog;
                                 cont=1;
                                 break;
                             }
@@ -266,7 +279,7 @@ void inicializa_velha(){
     printf("\n");
     for(int c=0;c<3;c++){
         for(int d=0;d<3;d++){
-            matriz[c][d]=' ';
+            jogo.JogVelha[c][d]=' ';
         }
     }
 }
@@ -277,8 +290,8 @@ int verifica_ganhador(char jog){
         cont=1;
         //printf("--\n");
         for(d=0;d<3;d++){
-            //printf("matriz[%d][%d] = %c\n",vitoria[c][d][0],vitoria[c][d][1],matriz[vitoria[c][d][0]][vitoria[c][d][1]]);
-            if(matriz[vitoria[c][d][0]][vitoria[c][d][1]]!=jog){
+            //printf("jogo.JogVelha[%d][%d] = %c\n",vitoria[c][d][0],vitoria[c][d][1],jogo.JogVelha[vitoria[c][d][0]][vitoria[c][d][1]]);
+            if(jogo.JogVelha[vitoria[c][d][0]][vitoria[c][d][1]]!=jog){
                 cont=0;
                 break;
             }
@@ -289,7 +302,7 @@ int verifica_ganhador(char jog){
     }
     for(c=0;c<3;c++){
         for(d=0;d<3;d++){
-            if(matriz[c][d]==' '){
+            if(jogo.JogVelha[c][d]==' '){
                 return 0;
             }
         }
@@ -311,7 +324,7 @@ void mostra_matriz(){
     for(int c=0;c<3;c++){
         printf("%d",c+1);
         for(int d=0;d<3;d++){
-            printf("[%c]",matriz[c][d]);
+            printf("[%c]",jogo.JogVelha[c][d]);
         }
         printf("\n");
     }
