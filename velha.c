@@ -14,6 +14,7 @@ void mostra_matriz();
 void grava_texto();
 void remove_quebra();
 int grava_bin(char *arqbin);
+void imprime_tela(char *arqbin);
 
 typedef struct velha{
     int partida;
@@ -29,32 +30,30 @@ int nvez=2, lin, col, resjogada,jogadas1[3][3],jogadas2[3][3],nivel,jogcomp;
 int vitoria[8][3][2]={{{0,0},{0,1},{0,2}},{{1,0},{1,1},{1,2}},{{2,0},{2,1},{2,2}},{{0,0},{1,0},{2,0}},{{0,1},{1,1},{2,1}},{{0,2},{1,2},{2,2}},{{0,0},{1,1},{2,2}},{{0,2},{1,1},{2,0}}};
 
 int main(){
+    system("cls");
+    printf("----------------------------JOGO DA VELHA!!------------------------\n");
     char opc, arqbin[20];
     jogo.partida=0;
+    strcpy(arqbin,"campeonato.bin");
+    printf("Jogador 1, digite seu nome: ");
+    setbuf(stdin, NULL);
+    fgets(nome1,sizeof(nome1),stdin);
+    if(menu()==2){
+        strcpy(contra,"Jogador 2");
+        printf("Jogador 2, digite seu nome: ");
+        setbuf(stdin, NULL);
+        fgets(nome2,sizeof(nome1),stdin);
+    } else {
+        strcpy(contra,"Computador");
+        strcpy(nome2,"Computador");
+        jogcomp=1;
+    }
+    escolha_simb(&jog1,&jog2);
+    remove_quebra();
+    grava_texto();
     do{
         system("cls");
-        printf("----------------------------JOGO DA VELHA!!------------------------\n");
         inicializa_velha();
-        printf("\nDigite o nome do arquivo que deseja salvar as partida: ");
-        setbuf(stdin, NULL);
-        fgets(arqbin,sizeof(arqbin)-4,stdin);
-        strcat(arqbin,".dat");
-        printf("Jogador 1, digite seu nome: ");
-        setbuf(stdin, NULL);
-        fgets(nome1,sizeof(nome1),stdin);
-        if(menu()==2){
-            strcpy(contra,"Jogador 2");
-            printf("Jogador 2, digite seu nome: ");
-            setbuf(stdin, NULL);
-            fgets(nome2,sizeof(nome1),stdin);
-        } else {
-            strcpy(contra,"Computador");
-            strcpy(nome2,"Computador");
-            jogcomp=1;
-        }
-        escolha_simb(&jog1,&jog2);
-        remove_quebra();
-        grava_texto();
         vez=jog2;
         printf("---------------------VALENDO!-------------------");
         mostra_matriz();
@@ -118,6 +117,7 @@ int main(){
             setbuf(stdin,NULL);
             scanf("%c",&opc);
     }while(tolower(opc)=='s');
+    imprime_tela(arqbin);
     printf("\nPress ENTER key to Continue\n");  
     getchar();
     getchar(); 
@@ -341,14 +341,7 @@ int grava_bin(char *arqbin){
     if((arq=fopen(arqbin,"a+b"))==NULL){
         return 0;
     } else {
-        fprintf(arq, "%d\n",jogo.partida);
-        for(int c=0;c<3;c++){
-            for(int d=0;d<3;d++){
-                fprintf(arq,"[%c]",jogo.JogVelha[c][d]);
-            }
-            printf("\n");
-        }
-        fprintf(arq,"%c $s\n",jogo.resultado);
+        fwrite(&jogo,1,sizeof(jogo),arq);
     }
     fclose(arq);
     return 1;
@@ -357,6 +350,57 @@ int grava_bin(char *arqbin){
 //L� bin�rio
 
 //Imprime na tela
+
+void imprime_tela(char arqbin[50]){
+    char jog1, jog2, nomejog1[20], nomejog2[20], linha[48], vencedor[20];
+    int v1,v2,c=0,d=0;
+    FILE *arqtxt;
+    if((arq=fopen(arqbin,"rb"))==NULL){
+        printf("Erro!\n");
+        //exit(0);
+    }
+    if((arqtxt=fopen("nomes.txt","r"))==NULL){
+        printf("Erro!\n");
+        //exit(0);
+    }
+    fgets(linha,sizeof(linha),arqtxt);
+    while(linha[c]!=';'){
+        nomejog1[d]=linha[c];
+        c++;
+        d++;
+    }
+    nomejog1[d]='\0';
+    d=0;
+    jog1=linha[c+2];    c+=5;
+    while(linha[c]!=';'){
+        nomejog2[d]=linha[c];
+        c++;
+        d++;
+    }
+    nomejog2[d]='\0';
+    jog2=linha[c+2];
+    printf("\n-------------------------RESULTADOS------------------------\n");
+    do{
+        fread(&jogo,1,sizeof(Partida),arq);
+        printf("\n----------------------Partida %d---------------------\n\n",jogo.partida);
+        for(int c=0;c<3;c++){
+            for(int d=0;d<3;d++){
+                printf("[%c]",jogo.JogVelha[c][d]);
+            }
+            printf("\n");
+        }
+        if(jogo.resultado==jog1){
+            strcpy(vencedor,nomejog1);
+        } else if(jogo.resultado==jog2){
+            strcpy(vencedor,nomejog2);
+        } else {
+            strcpy(vencedor,"Velha");
+        }
+        printf("\nResultado: %s",vencedor);
+    }while(!feof(arq));
+    fclose(arq);
+    fclose(arqtxt);
+}
 
 void mostra_matriz(){
     printf("\n");
