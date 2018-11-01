@@ -11,6 +11,9 @@ void escolha_simb(char *jog1, char *jog2);
 void inicializa_velha();
 int verifica_ganhador(char jog);
 void mostra_matriz();
+void grava_texto();
+void remove_quebra();
+int grava_bin(char *arqbin);
 
 typedef struct velha{
     int partida;
@@ -19,25 +22,39 @@ typedef struct velha{
 } Partida;
 Partida jogo;
 
-char  jog1, jog2, jog, vez, contra[20];
+FILE *arq;
+char  jog1, jog2, jog, vez, contra[20], nome1[20], nome2[20];
 int nvez=2, lin, col, resjogada,jogadas1[3][3],jogadas2[3][3],nivel,jogcomp;
 //Possiveis combinações de vitória
 int vitoria[8][3][2]={{{0,0},{0,1},{0,2}},{{1,0},{1,1},{1,2}},{{2,0},{2,1},{2,2}},{{0,0},{1,0},{2,0}},{{0,1},{1,1},{2,1}},{{0,2},{1,2},{2,2}},{{0,0},{1,1},{2,2}},{{0,2},{1,1},{2,0}}};
 
 int main(){
-    char opc;
+    char opc, arqbin[20];
     jogo.partida=0;
     do{
         system("cls");
         printf("----------------------------JOGO DA VELHA!!------------------------\n");
         inicializa_velha();
+        printf("\nDigite o nome do arquivo que deseja salvar as partida: ");
+        setbuf(stdin, NULL);
+        fgets(arqbin,sizeof(arqbin)-4,stdin);
+        strcat(arqbin,".dat");
+        printf("Jogador 1, digite seu nome: ");
+        setbuf(stdin, NULL);
+        fgets(nome1,sizeof(nome1),stdin);
         if(menu()==2){
             strcpy(contra,"Jogador 2");
+            printf("Jogador 2, digite seu nome: ");
+            setbuf(stdin, NULL);
+            fgets(nome2,sizeof(nome1),stdin);
         } else {
             strcpy(contra,"Computador");
+            strcpy(nome2,"Computador");
             jogcomp=1;
         }
         escolha_simb(&jog1,&jog2);
+        remove_quebra();
+        grava_texto();
         vez=jog2;
         printf("---------------------VALENDO!-------------------");
         mostra_matriz();
@@ -94,6 +111,9 @@ int main(){
                 jogo.resultado='v';
             }
             jogo.partida++;
+            if(!grava_bin(arqbin)){
+                printf("Erro ao criar arquivo binario!");
+            }
             printf("\nDeseja continuar?[S/N]: ");
             setbuf(stdin,NULL);
             scanf("%c",&opc);
@@ -241,8 +261,6 @@ void jogada_computador(char jog, int nivel){
     jogcomp++;
 }
 
-//Criar jogadas b�sico, intermedi�rio e avan�ado
-
 int menu(){
     int opc;
     do{
@@ -310,9 +328,31 @@ int verifica_ganhador(char jog){
     return 3;
 }
 
-//Grava em texto
+void grava_texto(){
+    if((arq=fopen("nomes.txt","a+"))==NULL){
+        printf("Erro!");
+        exit(0);
+    }
+    fprintf(arq, "%s; %c; %s; %c\n",nome1,jog1,nome2,jog2);
+    fclose(arq);
+}
 
-//Grava em binario
+int grava_bin(char *arqbin){
+    if((arq=fopen(arqbin,"a+b"))==NULL){
+        return 0;
+    } else {
+        fprintf(arq, "%d\n",jogo.partida);
+        for(int c=0;c<3;c++){
+            for(int d=0;d<3;d++){
+                fprintf(arq,"[%c]",jogo.JogVelha[c][d]);
+            }
+            printf("\n");
+        }
+        fprintf(arq,"%c $s\n",jogo.resultado);
+    }
+    fclose(arq);
+    return 1;
+}
 
 //L� bin�rio
 
@@ -329,4 +369,19 @@ void mostra_matriz(){
         printf("\n");
     }
     printf("\n");
+}
+
+void remove_quebra(){
+    for(int c=0;c<sizeof(nome1);c++){
+        if(nome1[c]=='\n'){
+            nome1[c]='\0';
+            break;
+        }
+    }
+    for(int c=0;c<sizeof(nome1);c++){
+        if(nome2[c]=='\n'){
+            nome2[c]='\0';
+            break;
+        }
+    }
 }
