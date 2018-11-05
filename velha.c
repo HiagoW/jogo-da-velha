@@ -15,6 +15,7 @@ void grava_texto();
 void remove_quebra();
 int grava_bin(char *arqbin);
 void imprime_tela(char *arqbin);
+int le_bin(char *arqbin, int partida);
 
 typedef struct velha{
     int partida;
@@ -117,10 +118,27 @@ int main(){
             setbuf(stdin,NULL);
             scanf("%c",&opc);
     }while(tolower(opc)=='s');
-    imprime_tela(arqbin);
+    do{
+        printf("\n\n1-Ver todos os dados\n2-Ver partida especifica\n0-Sair\nEscolha uma opcao: ");
+        setbuf(stdin,NULL);
+        scanf("%c",&opc);
+        if(opc=='1'){
+            imprime_tela(arqbin);
+        } else if(opc=='2'){
+            int npartida,reslebin;
+            do{
+                printf("Escolha a partida que deseja ver: ");
+                setbuf(stdin,NULL);
+                scanf("%d",&npartida);
+                reslebin=le_bin(arqbin,npartida);
+            }while(reslebin==0);
+        }
+    }while(opc!='0');
+    remove("campeonato.bin");
+    remove("nomes.txt");
     printf("\nPress ENTER key to Continue\n");  
     getchar();
-    getchar(); 
+    getchar();
     return 0;
     }
 
@@ -347,13 +365,62 @@ int grava_bin(char *arqbin){
     return 1;
 }
 
-//L� bin�rio
-
-//Imprime na tela
+int le_bin(char *arqbin, int partida){
+    char vencedor[20],nomejog1[20],nomejog2[20],linha[48];
+    int c=0,d=0;
+    FILE *arqtxt;
+    if((arq=fopen(arqbin,"rb"))==NULL){
+        printf("Erro!\n");
+        //exit(0);
+    }
+    if((arqtxt=fopen("nomes.txt","r"))==NULL){
+        printf("Erro!\n");
+        //exit(0);
+    }
+    fgets(linha,sizeof(linha),arqtxt);
+    while(linha[c]!=';'){
+        nomejog1[d]=linha[c];
+        c++;
+        d++;
+    }
+    nomejog1[d]='\0';
+    d=0;
+    jog1=linha[c+2];    c+=5;
+    while(linha[c]!=';'){
+        nomejog2[d]=linha[c];
+        c++;
+        d++;
+    }
+    nomejog2[d]='\0';
+    jog2=linha[c+2];
+    do{
+        fread(&jogo,1,sizeof(Partida),arq);
+        if(jogo.partida==partida){
+            printf("\n----------------------Partida %d---------------------\n\n",jogo.partida);
+            for(int c=0;c<3;c++){
+                for(int d=0;d<3;d++){
+                    printf("[%c]",jogo.JogVelha[c][d]);
+                }
+                printf("\n");
+            }
+            if(jogo.resultado==jog1){
+                strcpy(vencedor,nomejog1);
+            } else if(jogo.resultado==jog2){
+                strcpy(vencedor,nomejog2);
+            } else {
+                strcpy(vencedor,"Velha");
+            }   
+            printf("\nResultado: %s",vencedor);
+            return 1;
+        }
+    }while(!feof(arq));
+    return 0;
+}
 
 void imprime_tela(char arqbin[50]){
     char jog1, jog2, nomejog1[20], nomejog2[20], linha[48], vencedor[20];
-    int v1,v2,c=0,d=0;
+    int v1,v2,c,d;
+    v1=v2=c=d=0;
     FILE *arqtxt;
     if((arq=fopen(arqbin,"rb"))==NULL){
         printf("Erro!\n");
@@ -391,13 +458,24 @@ void imprime_tela(char arqbin[50]){
         }
         if(jogo.resultado==jog1){
             strcpy(vencedor,nomejog1);
+            v1++;
         } else if(jogo.resultado==jog2){
             strcpy(vencedor,nomejog2);
+            v2++;
         } else {
             strcpy(vencedor,"Velha");
         }
         printf("\nResultado: %s",vencedor);
     }while(!feof(arq));
+    printf("\n----------------------------------------------------------------------\n");
+    printf("%s %d X %s %d\n",nomejog1,v1,nomejog2,v2);
+    if(v1>v2){
+        printf("%s venceu o campeonato!",nomejog1);
+    } else if(v2>v1){
+        printf("%s venceu o campeonato!",nomejog2);
+    } else {
+        printf("Empate!");
+    }
     fclose(arq);
     fclose(arqtxt);
 }
