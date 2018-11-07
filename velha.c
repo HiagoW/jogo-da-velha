@@ -451,26 +451,26 @@ void imprime_tela(char arqbin[50]){
     nomejog2[d]='\0';
     jog2=linha[c+2];
     printf("\n-------------------------RESULTADOS------------------------\n");
-    while(contador>0){
-        fread(&jogo,1,sizeof(Partida),arq);
-        printf("\n----------------------Partida %d---------------------\n\n",jogo.partida);
-        for(int c=0;c<3;c++){
-            for(int d=0;d<3;d++){
-                printf("[%c]",jogo.JogVelha[c][d]);
+    while(!feof(arq)){
+        if((int *)(fread(&jogo,1,sizeof(Partida),arq))!=NULL){
+            printf("\n----------------------Partida %d---------------------\n\n",jogo.partida);
+            for(int c=0;c<3;c++){
+                for(int d=0;d<3;d++){
+                    printf("[%c]",jogo.JogVelha[c][d]);
+                }
+                printf("\n");
             }
-            printf("\n");
+            if(jogo.resultado==jog1){
+                strcpy(vencedor,nomejog1);
+                v1++;
+            } else if(jogo.resultado==jog2){
+                strcpy(vencedor,nomejog2);
+                v2++;
+            } else {
+                strcpy(vencedor,"Velha");
+            }
+            printf("\nResultado: %s",vencedor);
         }
-        if(jogo.resultado==jog1){
-            strcpy(vencedor,nomejog1);
-            v1++;
-        } else if(jogo.resultado==jog2){
-            strcpy(vencedor,nomejog2);
-            v2++;
-        } else {
-            strcpy(vencedor,"Velha");
-        }
-        printf("\nResultado: %s",vencedor);
-        contador--;
     }
     printf("\n----------------------------------------------------------------------\n");
     printf("%s %d X %s %d\n",nomejog1,v1,nomejog2,v2);
