@@ -16,6 +16,7 @@ void remove_quebra();
 int grava_bin(char *arqbin);
 void imprime_tela(char *arqbin);
 int le_bin(char *arqbin, int partida);
+void remove_arquivo();
 
 typedef struct velha{
     int partida;
@@ -26,7 +27,7 @@ Partida jogo;
 
 FILE *arq;
 char  jog1, jog2, jog, vez, contra[20], nome1[20], nome2[20];
-int nvez=2, lin, col, resjogada,jogadas1[3][3],jogadas2[3][3],nivel,jogcomp;
+int nvez=2, lin, col, resjogada,jogadas1[3][3],jogadas2[3][3],nivel,jogcomp,contador=0;
 //Possiveis combinações de vitória
 int vitoria[8][3][2]={{{0,0},{0,1},{0,2}},{{1,0},{1,1},{1,2}},{{2,0},{2,1},{2,2}},{{0,0},{1,0},{2,0}},{{0,1},{1,1},{2,1}},{{0,2},{1,2},{2,2}},{{0,0},{1,1},{2,2}},{{0,2},{1,1},{2,0}}};
 
@@ -111,6 +112,7 @@ int main(){
                 jogo.resultado='v';
             }
             jogo.partida++;
+            contador++;
             if(!grava_bin(arqbin)){
                 printf("Erro ao criar arquivo binario!");
             }
@@ -134,8 +136,8 @@ int main(){
             }while(reslebin==0);
         }
     }while(opc!='0');
-    remove("campeonato.bin");
-    remove("nomes.txt");
+    remove_arquivo();
+    //@erro - Não remove
     printf("\nPress ENTER key to Continue\n");  
     getchar();
     getchar();
@@ -414,6 +416,8 @@ int le_bin(char *arqbin, int partida){
             return 1;
         }
     }while(!feof(arq));
+    fclose(arq);
+    fclose(arqtxt);
     return 0;
 }
 
@@ -447,7 +451,7 @@ void imprime_tela(char arqbin[50]){
     nomejog2[d]='\0';
     jog2=linha[c+2];
     printf("\n-------------------------RESULTADOS------------------------\n");
-    do{
+    while(contador>0){
         fread(&jogo,1,sizeof(Partida),arq);
         printf("\n----------------------Partida %d---------------------\n\n",jogo.partida);
         for(int c=0;c<3;c++){
@@ -466,7 +470,8 @@ void imprime_tela(char arqbin[50]){
             strcpy(vencedor,"Velha");
         }
         printf("\nResultado: %s",vencedor);
-    }while(!feof(arq));
+        contador--;
+    }
     printf("\n----------------------------------------------------------------------\n");
     printf("%s %d X %s %d\n",nomejog1,v1,nomejog2,v2);
     if(v1>v2){
@@ -506,4 +511,9 @@ void remove_quebra(){
             break;
         }
     }
+}
+
+void remove_arquivo(){
+    remove("campeonato.bin");
+    remove("nomes.txt");
 }
