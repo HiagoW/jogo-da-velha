@@ -53,10 +53,13 @@ int main(){
     escolha_simb(&jog1,&jog2);
     remove_quebra();
     grava_texto();
+    vez=jog2;
     do{
         system("cls");
         inicializa_velha();
-        vez=jog2;
+        if(nivel==1){
+            vez=jog2;
+        }
         printf("---------------------VALENDO!-------------------");
         mostra_matriz();
         if(nivel==3){
@@ -160,8 +163,6 @@ void jogada_computador(char jog, int nivel){
     srand((unsigned) time(&t));
     int c,d;
     if(nivel==1){
-
-    } else if(nivel==2){
         do{
             c=(rand()%3+1);
             d=(rand()%3+1);
